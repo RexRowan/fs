@@ -1,6 +1,6 @@
 const App = () => {
   const course = 'Half Stack application development';
-  const contentData = [
+  const part = [
     {
       name: 'Fundamentals of React',
       exercises: 10
@@ -18,8 +18,8 @@ const App = () => {
   return (
     <div>
       <Header course={course} />
-      <Content contentData={contentData} />
-      <Total contentData={contentData} />
+      <Content part={part} />
+      <Total part={part} />
     </div>
   )
 };
@@ -32,10 +32,10 @@ const Header = ({ course }) => {
   );
 };
 
-const Content = ({ contentData }) => {
+const Content = ({ part }) => {
   return (
     <div>
-      {contentData.map((item, index) => (
+      {part.map((item, index) => (
         <p key={index}>
           {item.name} {item.exercises}
         </p>
@@ -44,8 +44,8 @@ const Content = ({ contentData }) => {
   );
 };
 
-const Total = ({ contentData }) => {
-  const total = contentData.reduce((sum, item) => sum + item.exercises, 0);
+const Total = ({ part }) => {
+  const total = part.reduce((sum, item) => sum + item.exercises, 0);
   return (
     <div>
       <p>Number of exercises {total}</p>
