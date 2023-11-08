@@ -18,14 +18,23 @@ const Statistics = ({good, neutral, bad}) => {
   );
 };
 
+const History = (props) => { 
+  if (props.allClicks.length === 0) {
+    return (
+      <div>
+        No feedback given
+      </div>
+    )
+  }
 
-const History = (props) => {
-    
-    <div>
-      button press history: {props.allClicks.join(' ')}
-    </div>
-  
+  return (
+  <div>
+    button press history: {props.allClicks.join(' ')}
+  </div>
+  )
 }
+
+
 
 const Button = ({ handleClick, text }) => (
   <button onClick={handleClick}>
