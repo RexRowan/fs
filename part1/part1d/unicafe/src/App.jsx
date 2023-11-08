@@ -5,6 +5,15 @@ const Statistics = ({good, neutral, bad}) => {
   const average = total !== 0 ? (good - bad) / total : 0;
   const positivePercentage = total !== 0 ? (good / total) * 100 : 0;
 
+  if (total === 0) {
+    return (
+      <div>
+        <h1>statistics</h1>
+        <p>No feedback given</p>
+      </div>
+    );
+  }
+
   return (
     <div>
       <h1>statistics</h1>
@@ -18,20 +27,11 @@ const Statistics = ({good, neutral, bad}) => {
   );
 };
 
-const History = (props) => { 
-  if (props.allClicks.length === 0) {
-    return (
-      <div>
-        No feedback given
-      </div>
-    )
-  }
-
-  return (
-  <div>
-    button press history: {props.allClicks.join(' ')}
-  </div>
-  )
+const History = (props) => {
+    <div>
+      button press history: {props.allClicks.join(' ')}
+    </div>
+    
 }
 
 
