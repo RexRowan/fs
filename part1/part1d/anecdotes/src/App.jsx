@@ -12,21 +12,30 @@ const App = () => {
     'The only way to go fast, is to go well.'
   ]
    
+
   const getRandomIndex = () => Math.floor(Math.random() * anecdotes.length);
    
   const [selected, setSelected] = useState(getRandomIndex());
+  const [votes, setVotes] = useState(new Array(anecdotes.length).fill(0));
 
   const nextAnecdote = () => {
     setSelected(getRandomIndex());
   }
 
+  const voteAnecdote = () => {
+    const newVotes = [...votes];
+    newVotes[selected] += 1;
+    setVotes(newVotes);
+  }
+
   return (
     <div>
-      {anecdotes[selected]}
-      <br/>
-      <br/>
+      <p>{anecdotes[selected]}</p>
+      <p>Has {votes[selected]} votes</p>
+      <button onClick={voteAnecdote}>Vote</button>
       <button onClick={nextAnecdote}>Next Anecdote</button>
     </div>
   )
 }
+
 export default App
