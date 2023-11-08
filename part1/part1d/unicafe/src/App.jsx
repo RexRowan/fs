@@ -35,6 +35,10 @@ const App = () => {
     setBad(bad + 1)
   }
 
+  const total = good + neutral + bad;
+  const average = total !== 0 ? (good - bad) / total : 0;
+  const positivePercentage = total !== 0 ? (good / total) * 100 : 0;
+
   return (
     <div>
       <h1>give feedback</h1>
@@ -46,6 +50,9 @@ const App = () => {
       <Button handleClick={handleBadClick} text='bad' />
       <History allClicks={allClicks} />
       <h1>statistics</h1>
+      <p>Total feedback: {total}</p>
+      <p>Average score: {average.toFixed(2)}</p>
+      <p>Positive feedback: {positivePercentage.toFixed(2)}%</p>
     </div>
   )
 }
