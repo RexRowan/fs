@@ -1,4 +1,4 @@
-# fullstack
+# Fullstack Open
 fs Helsinki 2023
 
 ## Completion
