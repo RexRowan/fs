@@ -1,5 +1,6 @@
-import { useState } from 'react'
-import './App.css'
+import { useState, useEffect } from 'react'
+import axios from 'axios'
+
 
 const Filter = ({ searchTerm, onSearchTermChange }) => (
   <div>
@@ -50,6 +51,16 @@ const App = () => {
   const [newName, setNewName] = useState('');
   const [newNumber, setNewNumber] = useState('');
   const [searchTerm, setSearchTerm] = useState('');
+
+  useEffect(() => {
+    console.log('effect')
+    axios
+      .get('http://localhost:3001/npersons')
+      .then(response => {
+        console.log('promise fulfilled')
+        setPersons(response.data)
+      })
+  }, [])
 
   const addPerson = (event) => {
     event.preventDefault(); 
