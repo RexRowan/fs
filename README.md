@@ -1,5 +1,5 @@
 # Fullstack Open
-fs Helsinki 2023
+fs Helsinki 2023 Vite + React
 
 ## Completion
 
