@@ -60,7 +60,7 @@ const App = () => {
         console.log('promise fulfilled')
         setPersons(response.data)
       })
-  }, [])
+  }, []);
 
   const addPerson = (event) => {
     event.preventDefault(); 
@@ -77,7 +77,7 @@ const App = () => {
       setPersons(persons.concat(personObject));
       setNewName('');
       setNewNumber('');
-    }
+    };
 };
 
 const filteredPersons = persons.filter(person =>
