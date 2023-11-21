@@ -1,6 +1,4 @@
-import { useState, useEffect } from 'react'
-import axios from 'axios'
-
+import { useState, useEffect } from 'react';
 
 const Filter = ({ searchTerm, onSearchTermChange }) => (
   <div>
@@ -42,47 +40,50 @@ const Persons = ({ persons }) => (
 );
 
 const App = () => {
-  const [persons, setPersons] = useState([
-    { name: 'Arto Hellas', number: '040-1234567' },
-    { name: 'Ada Lovelace', number: '39-44-5323523', id: 2 },
-    { name: 'Dan Abramov', number: '12-43-234345', id: 3 },
-    { name: 'Mary Poppendieck', number: '39-23-6423122', id: 4 }
-  ]);
+  const [persons, setPersons] = useState([]);
   const [newName, setNewName] = useState('');
   const [newNumber, setNewNumber] = useState('');
   const [searchTerm, setSearchTerm] = useState('');
 
   useEffect(() => {
-    console.log('effect')
-    axios
-      .get('http://localhost:3001/persons')
+    console.log('effect');
+    fetch('http://localhost:3001/persons')
       .then(response => {
-        console.log('promise fulfilled')
-        setPersons(response.data)
+        if (!response.ok) {
+          throw new Error('Network response was not ok');
+        }
+        return response.json();
       })
+      .then(data => {
+        console.log('promise fulfilled');
+        setPersons(data);
+      })
+      .catch(error => {
+        console.error('There has been a problem with your fetch operation:', error);
+      });
   }, []);
 
   const addPerson = (event) => {
-    event.preventDefault(); 
+    event.preventDefault();
 
     const personObject = {
       name: newName,
       number: newNumber
     };
 
-// Check if the new name already exists in the array
+    // Check if the new name already exists in the array
     if (persons.some(person => person.name === newName)) {
       alert(`${newName} is already added to phonebook.`);
     } else {
       setPersons(persons.concat(personObject));
       setNewName('');
       setNewNumber('');
-    };
-};
+    }
+  };
 
-const filteredPersons = persons.filter(person =>
-  person.name.toLowerCase().includes(searchTerm.toLowerCase())
-);
+  const filteredPersons = persons.filter(person =>
+    person.name.toLowerCase().includes(searchTerm.toLowerCase())
+  );
 
   return (
     <div>
