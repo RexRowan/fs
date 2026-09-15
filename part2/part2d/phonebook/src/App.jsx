@@ -1,4 +1,5 @@
-import { useState, useEffect } from 'react';
+import { useState, useEffect } from 'react'
+import personService from './services/persons'
 
 const Filter = ({ searchTerm, onSearchTermChange }) => (
   <div>
@@ -7,7 +8,7 @@ const Filter = ({ searchTerm, onSearchTermChange }) => (
       onChange={(e) => onSearchTermChange(e.target.value)}
     />
   </div>
-);
+)
 
 const PersonForm = ({ newName, newNumber, onNameChange, onNumberChange, onSubmit }) => (
   <form onSubmit={onSubmit}>
@@ -27,75 +28,110 @@ const PersonForm = ({ newName, newNumber, onNameChange, onNumberChange, onSubmit
       <button type="submit">add</button>
     </div>
   </form>
-);
+)
 
-const Persons = ({ persons }) => (
+const Persons = ({ persons, onDelete }) => (
   <ul>
-    {persons.map((person, index) => (
-      <li key={index}>
+    {persons.map((person) => (
+      <li key={person.id}>
         {person.name}: {person.number}
+        <button onClick={() => onDelete(person.id, person.name)}>delete</button>
       </li>
     ))}
   </ul>
-);
+)
 
 const App = () => {
-  const [persons, setPersons] = useState([]);
-  const [newName, setNewName] = useState('');
-  const [newNumber, setNewNumber] = useState('');
-  const [searchTerm, setSearchTerm] = useState('');
+  const [persons, setPersons] = useState([])
+  const [newName, setNewName] = useState('')
+  const [newNumber, setNewNumber] = useState('')
+  const [searchTerm, setSearchTerm] = useState('')
 
   useEffect(() => {
-    console.log('effect');
-    fetch('http://localhost:3001/persons')
-      .then(response => {
-        if (!response.ok) {
-          throw new Error('Network response was not ok');
-        }
-        return response.json();
+    personService
+      .getAll()
+      .then(initialPersons => {
+        setPersons(initialPersons)
       })
-      .then(data => {
-        console.log('promise fulfilled');
-        setPersons(data);
-      })
-      .catch(error => {
-        console.error('There has been a problem with your fetch operation:', error);
-      });
-  }, []);
+  }, [])
 
   const addPerson = (event) => {
-    event.preventDefault();
+    event.preventDefault()
+
+    const existingPerson = persons.find(person => person.name === newName)
+
+    if (existingPerson) {
+      const confirmUpdate = window.confirm(
+        `${newName} is already added to phonebook, replace the old number with a new one?`
+      )
+
+      if (!confirmUpdate) {
+        return
+      }
+
+      const changedPerson = { ...existingPerson, number: newNumber }
+
+      personService
+        .update(existingPerson.id, changedPerson)
+        .then(returnedPerson => {
+          setPersons(persons.map(person =>
+            person.id !== existingPerson.id ? person : returnedPerson
+          ))
+          setNewName('')
+          setNewNumber('')
+        })
+        .catch(() => {
+          alert(`the person '${newName}' was already removed from server`)
+          setPersons(persons.filter(person => person.id !== existingPerson.id))
+        })
+
+      return
+    }
 
     const personObject = {
       name: newName,
       number: newNumber
-    };
-
-    // Check if the new name already exists in the array
-    if (persons.some(person => person.name === newName)) {
-      alert(`${newName} is already added to phonebook.`);
-    } else {
-      setPersons(persons.concat(personObject));
-      setNewName('');
-      setNewNumber('');
     }
-  };
+
+    personService
+      .create(personObject)
+      .then(returnedPerson => {
+        setPersons(persons.concat(returnedPerson))
+        setNewName('')
+        setNewNumber('')
+      })
+  }
+
+  const deletePerson = (id, name) => {
+    const confirmDelete = window.confirm(`Delete ${name}?`)
+
+    if (!confirmDelete) {
+      return
+    }
+
+    personService
+      .remove(id)
+      .then(() => {
+        setPersons(persons.filter(person => person.id !== id))
+      })
+      .catch(() => {
+        alert(`the person '${name}' was already removed from server`)
+        setPersons(persons.filter(person => person.id !== id))
+      })
+  }
 
   const filteredPersons = persons.filter(person =>
     person.name.toLowerCase().includes(searchTerm.toLowerCase())
-  );
+  )
 
   return (
     <div>
       <h2>Phonebook</h2>
-
       <Filter
         searchTerm={searchTerm}
         onSearchTermChange={(value) => setSearchTerm(value)}
       />
-
       <h3>Add a new</h3>
-
       <PersonForm
         newName={newName}
         newNumber={newNumber}
@@ -103,11 +139,10 @@ const App = () => {
         onNumberChange={(value) => setNewNumber(value)}
         onSubmit={addPerson}
       />
-          
       <h3>Numbers</h3>
-      <Persons persons={filteredPersons} />
+      <Persons persons={filteredPersons} onDelete={deletePerson} />
     </div>
-  );
-};
+  )
+}
 
-export default App;
+export default App
