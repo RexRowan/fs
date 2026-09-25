@@ -109,14 +109,16 @@ const App = () => {
 
     personService
       .create(personObject)
-      .then(returnedPerson => {
-        setPersons(persons.concat(returnedPerson))
-        showNotification(`Added ${returnedPerson.name}`)
+      .then(createdPerson => {
+        setPersons(persons.concat(createdPerson))
         setNewName('')
         setNewNumber('')
       })
       .catch(error => {
-        showNotification(error.response.data.error, 'error')
+        setErrorMessage(error.response.data.error)
+        setTimeout(() => {
+          setErrorMessage(null)
+        }, 5000)
       })
   }
 
