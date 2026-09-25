@@ -24,6 +24,7 @@ app.get('/api/persons', (request, response, next) => {
     .catch(error => next(error))
 })
 
+// 3.18: info route uses the database
 app.get('/info', (request, response, next) => {
   Person.countDocuments({})
     .then(count => {
@@ -36,6 +37,7 @@ app.get('/info', (request, response, next) => {
     .catch(error => next(error))
 })
 
+// 3.18: single person uses the database, with proper error handling
 app.get('/api/persons/:id', (request, response, next) => {
   Person.findById(request.params.id)
     .then(person => {
@@ -48,6 +50,7 @@ app.get('/api/persons/:id', (request, response, next) => {
     .catch(error => next(error))
 })
 
+// 3.15: delete reflected in the database
 app.delete('/api/persons/:id', (request, response, next) => {
   Person.findByIdAndDelete(request.params.id)
     .then(result => {
@@ -58,6 +61,12 @@ app.delete('/api/persons/:id', (request, response, next) => {
 
 app.post('/api/persons', (request, response, next) => {
   const body = request.body
+
+  if (!body.name || !body.number) {
+    return response.status(400).json({
+      error: 'name or number missing'
+    })
+  }
 
   const person = new Person({
     name: body.name,
@@ -71,20 +80,22 @@ app.post('/api/persons', (request, response, next) => {
     .catch(error => next(error))
 })
 
+// 3.17: updating an existing person's number (PUT)
 app.put('/api/persons/:id', (request, response, next) => {
   const { name, number } = request.body
 
-  Person.findByIdAndUpdate(
-    request.params.id,
-    { name, number },
-    { new: true, runValidators: true, context: 'query' }
-  )
-    .then(updatedPerson => {
-      if (updatedPerson) {
-        response.json(updatedPerson)
-      } else {
-        response.status(404).end()
+  Person.findById(request.params.id)
+    .then(person => {
+      if (!person) {
+        return response.status(404).end()
       }
+
+      person.name = name
+      person.number = number
+
+      return person.save().then((updatedPerson) => {
+        response.json(updatedPerson)
+      })
     })
     .catch(error => next(error))
 })
@@ -94,19 +105,17 @@ const unknownEndpoint = (request, response) => {
 }
 app.use(unknownEndpoint)
 
-
+// 3.16: centralized error-handling middleware
 const errorHandler = (error, request, response, next) => {
   console.error(error.message)
 
   if (error.name === 'CastError') {
     return response.status(400).send({ error: 'malformatted id' })
-  } else if (error.name === 'ValidationError') {
-    return response.status(400).json({ error: error.message })
   }
 
   next(error)
 }
-
+// this has to be the last loaded middleware, also all the routes should be registered before this!
 app.use(errorHandler)
 
 const PORT = process.env.PORT
