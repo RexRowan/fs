@@ -66,61 +66,41 @@ const App = () => {
   }
 
   const addPerson = (event) => {
-    event.preventDefault()
+  event.preventDefault()
 
-    const existingPerson = persons.find(person => person.name === newName)
+  const existingPerson = persons.find(p => p.name === newName)
 
-    if (existingPerson) {
-      const confirmUpdate = window.confirm(
-        `${newName} is already added to phonebook, replace the old number with a new one?`
-      )
+  const personObject = {
+    name: newName,
+    number: newNumber,
+  }
 
-      if (!confirmUpdate) {
-        return
-      }
-
-      const changedPerson = { ...existingPerson, number: newNumber }
-
-      personService
-        .update(existingPerson.id, changedPerson)
-        .then(returnedPerson => {
-          setPersons(persons.map(person =>
-            person.id !== existingPerson.id ? person : returnedPerson
-          ))
-          showNotification(`Updated ${returnedPerson.name}'s number`)
-          setNewName('')
-          setNewNumber('')
-        })
-        .catch(() => {
-          showNotification(
-            `Information of '${newName}' has already been removed from server`,
-            'error'
-          )
-          setPersons(persons.filter(person => person.id !== existingPerson.id))
-        })
-
-      return
-    }
-
-    const personObject = {
-      name: newName,
-      number: newNumber
-    }
-
+  if (existingPerson) {
+    personService
+      .update(existingPerson.id, personObject)
+      .then(updatedPerson => {
+        setPersons(persons.map(p => p.id !== existingPerson.id ? p : updatedPerson))
+        setNewName('')
+        setNewNumber('')
+        showNotification(`Updated ${updatedPerson.name}`)
+      })
+      .catch(error => {
+        showNotification(error.response.data.error, 'error')
+      })
+  } else {
     personService
       .create(personObject)
       .then(createdPerson => {
         setPersons(persons.concat(createdPerson))
         setNewName('')
         setNewNumber('')
+        showNotification(`Added ${createdPerson.name}`)
       })
       .catch(error => {
-        setErrorMessage(error.response.data.error)
-        setTimeout(() => {
-          setErrorMessage(null)
-        }, 5000)
+        showNotification(error.response.data.error, 'error')
       })
   }
+}
 
   const deletePerson = (id, name) => {
     const confirmDelete = window.confirm(`Delete ${name}?`)
