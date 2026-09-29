@@ -1,0 +1,54 @@
+### create a user
+POST http://localhost:3003/api/users
+Content-Type: application/json
+
+{
+  "username": "rex",
+  "name": "Rex Rowan",
+  "password": "salainen"
+}
+
+### list users
+GET http://localhost:3003/api/users
+
+### create a blog (assigned to the first user for now)
+POST http://localhost:3003/api/blogs
+Content-Type: application/json
+
+{
+  "title": "Go To Statement Considered Harmful",
+  "author": "Edsger W. Dijkstra",
+  "url": "https://homepages.cwi.nl/~storm/teaching/reader/Dijkstra68.pdf",
+  "likes": 5
+}
+
+### list blogs
+GET http://localhost:3003/api/blogs
+
+### login
+# @name login
+POST http://localhost:3003/api/login
+Content-Type: application/json
+
+{
+  "username": "rex",
+  "password": "salainen"
+}
+
+### create a blog (uses the token from the login above)
+@authToken = {{login.response.body.token}}
+
+POST http://localhost:3003/api/blogs
+Content-Type: application/json
+Authorization: Bearer {{authToken}}
+
+{
+  "title": "Canonical string reduction",
+  "author": "Edsger W. Dijkstra",
+  "url": "https://www.cs.utexas.edu/~EWD/transcriptions/EWD08xx/EWD808.html",
+  "likes": 12
+}
+
+### delete a blog (replace the id)
+DELETE http://localhost:3003/api/blogs/PASTE_BLOG_ID
+Authorization: Bearer {{authToken}}
